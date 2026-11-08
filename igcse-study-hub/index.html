@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="IGCSE Study Hub for Biology, Chemistry, Physics and ICT practice."/>
+  <title>IGCSE Study Hub</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <strong>IGCSE Study Hub</strong>
+        <span>Practice • Progress • Syllabus 2026–2028</span>
+      </div>
+      <nav>
+        <a href="progress.html">Progress</a>
+        <a href="login.html">Login / Sign Up</a>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button>
+      </nav>
+    </header>
+
+    <section class="card hero">
+      <div class="eyebrow">Study smarter</div>
+      <h1>Your IGCSE practice hub.</h1>
+      <p>Practice one question at a time, track your accuracy, and review the questions you got wrong.</p>
+    </section>
+
+    <div class="section-title">
+      <div>
+        <h2>Choose a subject</h2>
+        <p class="small">Your progress is saved automatically on this device.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card subject-card">
+        <h3>Biology</h3>
+        <div class="subject-code">0610 • 2026–2028</div>
+        <p>Cells, nutrition, transport, respiration, homeostasis and more.</p>
+        <button class="btn-primary" onclick="start('bio')">Practice Biology</button>
+      </div>
+      <div class="card subject-card">
+        <h3>Chemistry</h3>
+        <div class="subject-code">0620 • 2026–2028</div>
+        <p>Atomic structure, bonding, calculations, reactions and organic chemistry.</p>
+        <button class="btn-primary" onclick="start('chem')">Practice Chemistry</button>
+      </div>
+      <div class="card subject-card">
+        <h3>Physics</h3>
+        <div class="subject-code">0625 • 2026–2028</div>
+        <p>Forces, electricity, energy, waves, thermal physics and magnetism.</p>
+        <button class="btn-primary" onclick="start('phy')">Practice Physics</button>
+      </div>
+      <div class="card subject-card">
+        <h3>ICT</h3>
+        <div class="subject-code">0417 • 2026–2028</div>
+        <p>Hardware, data representation, networks, cybersecurity, databases and spreadsheets.</p>
+        <button class="btn-primary" onclick="start('ict')">Practice ICT</button>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <div>
+        <h2>About the creator</h2>
+      </div>
+    </div>
+    <section class="card creator-card">
+      <div class="creator-copy">
+        <div class="eyebrow">Learn about the creator</div>
+        <h3>Built by a student, for students.</h3>
+        <p>Learn more about the person behind IGCSE Study Hub, their projects, interests, and academic journey.</p>
+      </div>
+      <a class="btn-primary creator-link" href="creator.html">Learn About the Creator →</a>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function start(subjectKey){
+      const session = getSession();
+      if(!session){
+        alert("Please login first.");
+        location.href = "login.html";
+        return;
+      }
+      location.href = `practice.html?subject=${subjectKey}`;
+    }
+  </script>
+</body>
+</html>

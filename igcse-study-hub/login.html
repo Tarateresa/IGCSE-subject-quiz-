@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login | IGCSE Study Hub</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <strong>IGCSE Study Hub</strong>
+        <span>Login / Sign Up</span>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button>
+      </nav>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="eyebrow">Welcome back</div>
+        <h1>Login</h1>
+        <label class="form-label" for="loginUser">Username</label>
+        <input id="loginUser" placeholder="e.g. Ahmed" autocomplete="username" />
+        <label class="form-label" for="loginPass">Password</label>
+        <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password" />
+        <div class="btn-row">
+          <button class="btn-primary" onclick="doLogin()">Login</button>
+          <button onclick="clearFields()">Clear</button>
+        </div>
+        <p id="loginMsg" class="small"></p>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">New here?</div>
+        <h1>Create account</h1>
+        <label class="form-label" for="signUser">Username</label>
+        <input id="signUser" placeholder="e.g. Sara" autocomplete="username" />
+        <label class="form-label" for="signPass">Password</label>
+        <input id="signPass" type="password" placeholder="Create a password" autocomplete="new-password" />
+        <div class="btn-row">
+          <button class="btn-primary" onclick="doSignup()">Create account</button>
+        </div>
+        <p class="small">Progress is saved locally on this device.</p>
+        <p id="signMsg" class="small"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function clearFields(){
+      ["loginUser","loginPass","signUser","signPass"].forEach(id=>{
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("loginMsg").textContent = "";
+      document.getElementById("signMsg").textContent = "";
+    }
+
+    function doSignup(){
+      const username = loginTrim("signUser");
+      const password = loginTrim("signPass");
+      const users = getUsers();
+
+      if(!username || !password){ show("signMsg","Type a username and password."); return; }
+      if(users.some(u => u.username === username)){ show("signMsg","That username already exists."); return; }
+
+      users.push({ username, password });
+      setUsers(users);
+      setSession(username);
+      ensureUserProgress(username);
+      show("signMsg","Account created. Redirecting...");
+      setTimeout(()=> location.href="index.html", 500);
+    }
+
+    function doLogin(){
+      const username = loginTrim("loginUser");
+      const password = loginTrim("loginPass");
+      const users = getUsers();
+
+      if(!username || !password){ show("loginMsg","Type a username and password."); return; }
+      const u = users.find(x => x.username === username && x.password === password);
+      if(!u){ show("loginMsg","Wrong username or password."); return; }
+
+      setSession(username);
+      ensureUserProgress(username);
+      show("loginMsg","Logged in. Redirecting...");
+      setTimeout(()=> location.href="index.html", 500);
+    }
+
+    function loginTrim(id){
+      return (document.getElementById(id).value || "").trim();
+    }
+    function show(id, txt){
+      document.getElementById(id).textContent = txt;
+      document.getElementById(id).style.color = txt.includes("Redirecting") ? "var(--good)" : "var(--muted)";
+    }
+  </script>
+</body>
+</html>

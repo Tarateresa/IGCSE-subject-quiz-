@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Progress | IGCSE Study Hub</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <strong>Your Progress</strong>
+        <span>Track your practice and review mistakes</span>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button>
+        <button onclick="doLogout()">Logout</button>
+      </nav>
+    </header>
+
+    <section class="card hero">
+      <div class="eyebrow">Progress dashboard</div>
+      <h1>See how you're doing.</h1>
+      <p>Check your accuracy by subject and revisit every question you got wrong.</p>
+    </section>
+
+    <div class="section-title">
+      <div><h2>Subject progress</h2></div>
+    </div>
+    <div class="grid" id="cards"></div>
+
+    <div class="section-title">
+      <div>
+        <h2>Questions to review</h2>
+        <p class="small">Every incorrect or skipped question is saved here.</p>
+      </div>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const session = getSession();
+    if(!session){
+      alert("Please login first.");
+      location.href="login.html";
+    }
+
+    const cards = document.getElementById("cards");
+    const wrongList = document.getElementById("wrongList");
+    const keys = Object.keys(SUBJECTS);
+
+    function renderProgress(){
+      cards.innerHTML = "";
+      wrongList.innerHTML = "";
+
+      keys.forEach(k=>{
+        const s = SUBJECTS[k];
+        const p = progressForSubject(session.username, k);
+        const pct = percentCorrect(session.username, k);
+        const wrongCount = getWrongAnswers(session.username, k).length;
+
+        const el = document.createElement("div");
+        el.className = "card";
+        el.innerHTML = `
+          <h3>${s.name} <span class="small">(${s.code})</span></h3>
+          <p class="small">Syllabus: ${s.syllabus}</p>
+          <div class="stat-row">
+            <div class="stat"><strong>${p.attempted}</strong><span>Attempted</span></div>
+            <div class="stat"><strong style="color:var(--good)">${p.correct}</strong><span>Correct</span></div>
+            <div class="stat"><strong style="color:${wrongCount ? 'var(--bad)' : 'var(--good)'}">${wrongCount}</strong><span>To review</span></div>
+          </div>
+          <p style="margin-top:14px">Accuracy: <b>${pct}%</b></p>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="go('${k}')">Continue</button>
+            ${p.attempted ? `<button onclick="resetSubject('${k}')">Reset</button>` : ""}
+          </div>
+        `;
+        cards.appendChild(el);
+
+        getWrongAnswers(session.username, k).forEach(item => {
+          const q = QUESTIONS[k][item.index];
+          if(!q) return;
+
+          const selectedText = item.skipped || item.selected === null ? "Skipped" : q.options[item.selected];
+          const correctText = q.options[q.answerIndex];
+          const review = document.createElement("div");
+          review.className = "wrong-item";
+          review.innerHTML = `
+            <div class="eyebrow">${s.name} • ${q.topic}</div>
+            <div class="wrong-question">${q.prompt}</div>
+            <div class="answer-line">Your answer: <strong class="wrong-text">${selectedText}</strong></div>
+            <div class="answer-line">Correct answer: <strong class="correct-text">${correctText}</strong></div>
+            <div class="btn-row" style="margin-top:12px;">
+              <button onclick="practiceQuestion('${k}', ${item.index})">Practice this question</button>
+            </div>
+          `;
+          wrongList.appendChild(review);
+        });
+      });
+
+      if(!wrongList.children.length){
+        wrongList.innerHTML = `<div class="empty-state"><strong>No mistakes to review yet.</strong><br>Keep practicing — questions you miss will appear here.</div>`;
+      }
+    }
+
+    function go(k){
+      location.href = `practice.html?subject=${k}`;
+    }
+
+    function practiceQuestion(k, index){
+      location.href = `practice.html?subject=${k}&review=${index}`;
+    }
+
+    function resetSubject(k){
+      if(confirm(`Reset all ${SUBJECTS[k].name} progress for this account?`)){
+        resetSubjectProgress(session.username, k);
+        renderProgress();
+      }
+    }
+
+    function doLogout(){
+      logout();
+      location.href="login.html";
+    }
+
+    renderProgress();
+  </script>
+</body>
+</html>

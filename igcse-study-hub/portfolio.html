@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Portfolio | IGCSE Study Hub</title>
+  
+  <style>
+  :root {
+    --mint:   #E4F4DF;   /* page background */
+    --paper:  #F5FBF2;   /* light surfaces */
+    --sage:   #B7E0C2;   /* main pastel green */
+    --leaf:   #7CC79A;   /* accent */
+    --moss:   #2D4A3B;   /* text + dark parts */
+    --moss-2: #4E6B5B;   /* softer text */
+    --radius: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: "DM Sans", system-ui, sans-serif; background: var(--mint); color: var(--moss); line-height: 1.65; font-size: 1.05rem; }
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; line-height: 1.05; letter-spacing: -0.02em; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--moss); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: min(1100px, 100% - 2.5rem); margin-inline: auto; }
+  section { padding: 5.5rem 0; }
+  h2 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin-bottom: 2rem; }
+
+  /* Nav */
+  header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--mint) 88%, transparent); backdrop-filter: blur(8px); }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+  .logo { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.25rem; text-decoration: none; }
+  nav ul { display: flex; gap: 1.5rem; list-style: none; }
+  nav ul a { text-decoration: none; font-weight: 500; padding: .25rem 0; border-bottom: 2px solid transparent; }
+  nav ul a:hover { border-color: var(--leaf); }
+
+  /* Hero */
+  .hero { padding-top: 3rem; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; }
+  .hero h1 { font-size: clamp(3.2rem, 9vw, 7rem); font-weight: 800; }
+  .hero p.lead { margin-top: 1.5rem; max-width: 34rem; font-size: 1.25rem; color: var(--moss-2); }
+  .btns { margin-top: 2rem; display: flex; gap: .9rem; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: .9rem 1.6rem; border-radius: 999px; font-weight: 700; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+  .btn.primary { background: var(--moss); color: var(--paper); }
+  .btn.primary:hover { transform: translateY(-3px); }
+  .btn.ghost { background: var(--sage); }
+  .btn.ghost:hover { background: var(--leaf); }
+  .blobs { position: relative; aspect-ratio: 1; max-width: 420px; margin-inline: auto; width: 100%; }
+  .blobs span { position: absolute; display: block; }
+  .b1 { inset: 4% 8% 14% 0; background: var(--sage); border-radius: 62% 38% 55% 45% / 48% 58% 42% 52%; animation: drift 14s ease-in-out infinite alternate; }
+  .b2 { inset: 22% 0 0 24%; background: var(--leaf); border-radius: 45% 55% 40% 60% / 60% 40% 60% 40%; opacity: .85; animation: drift 18s ease-in-out infinite alternate-reverse; }
+  .b3 { inset: 38% 38% 18% 10%; background: var(--paper); border-radius: 50%; }
+  .blobs .initial { inset: 0; display: grid; place-items: center; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(4rem, 12vw, 7rem); }
+  @keyframes drift { from { transform: rotate(0) scale(1); } to { transform: rotate(8deg) scale(1.04); } }
+
+  /* About */
+  .about { background: var(--paper); border-radius: var(--radius) var(--radius) 0 0; }
+  .about-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem; }
+  .about p + p { margin-top: 1rem; }
+  .facts { display: grid; gap: .8rem; margin-top: 1.6rem; list-style: none; }
+  .facts li { background: var(--mint); padding: .8rem 1.1rem; border-radius: 16px; }
+  .facts b { display: block; font-size: .95rem; color: var(--moss-2); font-weight: 500; }
+
+  /* Grades */
+  .grades { background: var(--paper); }
+  .gpa { display: inline-flex; align-items: baseline; gap: .8rem; background: var(--sage); border-radius: var(--radius); padding: 1.2rem 1.8rem; margin-bottom: 2rem; }
+  .gpa strong { font-family: "Bricolage Grotesque", sans-serif; font-size: 3.4rem; font-weight: 800; line-height: 1; }
+  .gpa span { color: var(--moss-2); }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 480px; }
+  caption { text-align: left; font-weight: 700; padding-bottom: .8rem; }
+  th, td { text-align: left; padding: .9rem 1rem; }
+  thead th { background: var(--sage); }
+  thead th:first-child { border-radius: 14px 0 0 14px; }
+  thead th:last-child { border-radius: 0 14px 14px 0; }
+  tbody tr { border-bottom: 1px solid var(--sage); }
+  td.grade { font-weight: 700; }
+  .pill { display: inline-block; background: var(--mint); border-radius: 999px; padding: .1rem .8rem; font-weight: 700; }
+
+  /* Projects */
+  .projects { background: var(--paper); }
+  .project-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.4rem; }
+  .project { border-radius: var(--radius); padding: 1.6rem; display: flex; flex-direction: column; justify-content: flex-end; min-height: 280px; text-decoration: none; transition: transform .25s ease; }
+  .project:hover { transform: translateY(-6px); }
+  .project h3 { font-size: 1.6rem; margin-bottom: .4rem; }
+  .project p { font-size: .98rem; max-width: 30rem; }
+  .project .tags { margin-top: .9rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .project .tags span { background: color-mix(in srgb, var(--paper) 70%, transparent); border-radius: 999px; padding: .15rem .75rem; font-size: .85rem; }
+  .p1 { grid-column: span 4; background: var(--sage); min-height: 340px; }
+  .p2 { grid-column: span 2; background: var(--leaf); }
+  .p3 { grid-column: span 2; background: #CFEBD3; }
+  .p4 { grid-column: span 4; background: var(--moss); color: var(--paper); }
+  .p4 .tags span { background: rgba(255,255,255,.14); }
+
+  /* Skills */
+  .skills { background: var(--paper); }
+  .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; }
+  .skill-groups h3 { font-size: 1.3rem; margin-bottom: .9rem; }
+  .skill-list { display: flex; flex-wrap: wrap; gap: .6rem; list-style: none; }
+  .skill-list li { background: var(--sage); padding: .45rem 1.1rem; border-radius: 999px; font-weight: 500; }
+  .skill-groups > div:nth-child(2) .skill-list li { background: var(--leaf); }
+  .skill-groups > div:nth-child(3) .skill-list li { background: var(--mint); }
+
+  /* Contact */
+  .contact { background: var(--sage); border-radius: var(--radius) var(--radius) 0 0; }
+  .contact h2 { font-size: clamp(2.4rem, 7vw, 5rem); max-width: 14ch; }
+  .contact p { max-width: 32rem; margin-bottom: 1.8rem; }
+  .contact .btn.primary { font-size: 1.1rem; }
+  .links { margin-top: 2.4rem; display: flex; gap: 1.6rem; flex-wrap: wrap; }
+  .links a { font-weight: 500; }
+  footer { background: var(--sage); padding: 1.5rem 0 2.5rem; font-size: .92rem; color: var(--moss-2); }
+
+  @media (max-width: 800px) {
+    section { padding: 4rem 0; }
+    .hero-grid, .about-grid { grid-template-columns: 1fr; }
+    .blobs { max-width: 280px; order: -1; }
+    .project-grid { grid-template-columns: 1fr; }
+    .p1, .p2, .p3, .p4 { grid-column: auto; min-height: 240px; }
+    nav ul { gap: .9rem; font-size: .9rem; }
+    .logo { display: none; }
+    nav { justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+  <nav class="wrap" aria-label="Main">
+    <a class="logo" href="#top">My Portfiolo</a>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#grades">Grades</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="index.html">Home</a></li>
+       <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Hi, I'm Ch.Tankhiluun.</h1>
+        <p class="lead">Student of Mongol Aspiration School. I like learning by building things, and this is where I keep my grades, projects and skills.</p>
+        <div class="btns">
+          <a class="btn primary" href="#projects">See my projects</a>
+          <a class="btn ghost" href="#contact">Contact me</a>
+        </div>
+      </div>
+      <div class="blobs" aria-hidden="true">
+        <span class="b1"></span><span class="b2"></span><span class="b3"></span>
+        <span class="initial"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="about">
+    <div class="wrap about-grid">
+      <h2>About me</h2>
+      <div>
+        <p>I'm a student graduating in 2028 and I'm currently majoring in data science. I enjoy solving problems, working in teams, and picking up new tools quickly.</p>
+        <p>Outside of class I like reading, sports and trying new hobbies. Before graduating I want to work with many projects so it can be an advatage for me when I enter university.</p>
+        <ul class="facts">
+          <li><b>School</b>Mongol Aspiration International School</li>
+          <li><b>Studying</b>Data Science, expected graduation 2028</li>
+          <li><b>Languages</b>English, Mongolian, German</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRADES -->
+  <section id="grades" class="grades">
+    <div class="wrap">
+      <h2>My grades</h2>
+      <div class="gpa"><strong>3.8</strong><span>Overall GPA (out of 4.0)</span></div>
+      <div class="table-scroll">
+        <table>
+          <caption>Selected courses</caption>
+          <thead>
+            <tr><th scope="col">Course</th><th scope="col">Level</th><th scope="col">Grade</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Additional Mathematics</td><td>IGCSE</td><td class="grade"><span class="pill">A*</span></td></tr>
+            <tr><td>First Language English</td><td>IGCSE</td><td class="grade"><span class="pill">B</span></td></tr>
+            <tr><td>ICT</td><td>IGCSE</td><td class="grade"><span class="pill">A*</span></td></tr>
+            <tr><td>Biology</td><td>IGCSE</td><td class="grade"><span class="pill">A</span></td></tr>
+            <tr><td>Chemistry</td><td>IGCSE</td><td class="grade"><span class="pill">A</span></td></tr>
+            <tr><td>German Language</td><td>IGCSE</td><td class="grade"><span class="pill">A</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="projects">
+    <div class="wrap">
+      <h2>My projects</h2>
+      <div class="project-grid">
+        <a class="project p1" href="#">
+          <h3>Study IGCSE web</h3>
+          <p>A small web that helps IGCSE students practice subjects, my final most developed subject</p>
+          <div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+        </a>
+        <a class="project p2" href="#">
+          <h3>Class Survey</h3>
+          <p>Research project on how students spend their time.</p>
+          <div class="tags"><span>Statistics</span><span>Excel</span></div>
+        </a>
+        <a class="project p3" href="#">
+          <h3>Recycling Poster</h3>
+          <p>Campus awareness design for a group assignment.</p>
+          <div class="tags"><span>Design</span><span>Teamwork</span></div>
+        </a>
+        <a class="project p4" href="#">
+          <h3>Weather Dashboard</h3>
+          <p>A personal project that shows the forecast for any city with simple charts. I built it to practice working with data from the web.</p>
+          <div class="tags"><span>Python</span><span>Data</span><span>Charts</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="skills">
+    <div class="wrap">
+      <h2>My skills</h2>
+      <div class="skill-groups">
+        <div>
+          <h3>Technical</h3>
+          <ul class="skill-list">
+            <li>HTML &amp; CSS</li><li>JavaScript</li><li>Python</li><li>Excel</li><li>Git</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Study and work</h3>
+          <ul class="skill-list">
+            <li>Research</li><li>Presentations</li><li>Time management</li><li>Writing</li>
+          </ul>
+        </div>
+        <div>
+          <h3>People</h3>
+          <ul class="skill-list">
+            <li>Teamwork</li><li>Communication</li><li>Problem solving</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2>Let's get in touch.</h2>
+      <p>Looking for an intern, a teammate or a tutor? Send me an email and I'll reply as soon as I can.</p>
+      <a class="btn primary" href="mailto:you@example.com">28c_tankhiluun.ch@mongolaspiration.edu.mn</a>
+      <div class="links">
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+        <a href="tel:+000000000">+976 85158080</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">© <span id="year">2026</span> Tankhiluun. All rights reserved.</div>
+</footer>
+
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

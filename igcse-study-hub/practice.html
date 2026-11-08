@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Practice | IGCSE Study Hub</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <strong id="practiceTitle">Practice Mode</strong>
+        <span class="mono" id="syllabel">Syllabus 2026–2028</span>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="progress.html">Progress</a>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button>
+        <button onclick="doLogout()">Logout</button>
+      </nav>
+    </header>
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <strong id="progressTitle">Your progress</strong>
+        <span class="small" id="progText">Loading...</span>
+      </div>
+      <div class="bar"><div id="bar"></div></div>
+    </div>
+
+    <div style="height:16px;"></div>
+
+    <div class="question-box">
+      <div class="question-meta">
+        <span class="topic-pill" id="topicLine">Topic</span>
+        <span class="difficulty-pill" id="difficultyLine">Difficulty</span>
+      </div>
+      <h2 id="qPrompt">Question</h2>
+      <div id="choices"></div>
+
+      <div class="btn-row" style="margin-top:18px;">
+        <button id="submitBtn" class="btn-primary" onclick="submitAnswer()">Submit Answer</button>
+        <button id="skipBtn" onclick="skip()">Skip</button>
+        <a href="progress.html">Review mistakes</a>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const url = new URL(location.href);
+    const subjectKey = url.searchParams.get("subject");
+    const session = getSession();
+
+    if(!session){
+      alert("Please login first.");
+      location.href="login.html";
+    }
+
+    const subject = window.SUBJECTS[subjectKey];
+    const list = window.QUESTIONS[subjectKey];
+
+    if(!subject || !list){
+      location.href = "index.html";
+      throw new Error("Invalid subject");
+    }
+
+    ensureUserProgress(session.username);
+
+    const reviewParam = url.searchParams.get("review");
+    let idx = reviewParam !== null ? Math.max(0, Math.min(Number(reviewParam), list.length - 1)) : Math.min(progressForSubject(session.username, subjectKey).idx || 0, list.length);
+    const isReviewMode = reviewParam !== null;
+    let selected = null;
+    let answered = false;
+
+    document.getElementById("practiceTitle").textContent = `${subject.name} Practice`;
+    document.getElementById("syllabel").textContent = `Syllabus: ${subject.syllabus}`;
+    document.getElementById("progressTitle").textContent = isReviewMode ? `${subject.name} • Review` : `${subject.name} progress`;
+
+    function render(){
+      const qPrompt = document.getElementById("qPrompt");
+      const choicesEl = document.getElementById("choices");
+      const feedback = document.getElementById("feedback");
+      const submitBtn = document.getElementById("submitBtn");
+      const skipBtn = document.getElementById("skipBtn");
+
+      if(idx >= list.length){
+        document.getElementById("topicLine").textContent = "Complete";
+        document.getElementById("difficultyLine").textContent = "🎉 Finished";
+        qPrompt.textContent = "You finished this set!";
+        choicesEl.innerHTML = `<div class="empty-state"><strong>Great work.</strong><br>Open Progress to review your accuracy and the questions you missed.</div>`;
+        feedback.className = "feedback show good";
+        feedback.textContent = "All questions in this set have been attempted.";
+        submitBtn.classList.add("hidden");
+        skipBtn.classList.add("hidden");
+        updateProgressUI();
+        return;
+      }
+
+      const q = list[idx];
+      selected = null;
+      answered = false;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      submitBtn.textContent = "Submit Answer";
+      submitBtn.classList.remove("hidden");
+      skipBtn.classList.remove("hidden");
+      document.getElementById("topicLine").textContent = q.topic;
+      document.getElementById("difficultyLine").textContent = `Difficulty ${q.difficulty}`;
+      qPrompt.textContent = q.prompt;
+      choicesEl.innerHTML = "";
+
+      q.options.forEach((opt, i)=>{
+        const id = `c_${i}`;
+        const label = document.createElement("label");
+        label.className = "choice";
+        label.setAttribute("for", id);
+        label.innerHTML = `
+          <input type="radio" name="answer" id="${id}" value="${i}">
+          <span class="choice-letter">${String.fromCharCode(65+i)}</span>
+          <span class="choice-text">${opt}</span>
+        `;
+        label.onclick = () => selectChoice(i);
+        choicesEl.appendChild(label);
+      });
+
+      updateProgressUI();
+    }
+
+    function selectChoice(i){
+      if(answered) return;
+      selected = i;
+      document.querySelectorAll(".choice").forEach((choice, index)=>{
+        choice.classList.toggle("selected", index === i);
+        const radio = choice.querySelector("input");
+        radio.checked = index === i;
+      });
+    }
+
+    function submitAnswer(){
+      if(idx >= list.length) return;
+
+      if(answered){
+        if(isReviewMode){
+          location.href = "progress.html";
+          return;
+        }
+        idx = progressForSubject(session.username, subjectKey).idx;
+        render();
+        window.scrollTo({top:0, behavior:"smooth"});
+        return;
+      }
+
+      if(selected === null){
+        const feedback = document.getElementById("feedback");
+        feedback.className = "feedback show bad";
+        feedback.textContent = "Please choose an option first.";
+        return;
+      }
+
+      const q = list[idx];
+      const isCorrect = selected === q.answerIndex;
+      if(!isReviewMode) updateProgress(session.username, subjectKey, idx, selected, isCorrect, false);
+      answered = true;
+
+      document.querySelectorAll(".choice").forEach((choice, i)=>{
+        choice.classList.add("disabled");
+        if(i === q.answerIndex) choice.classList.add("correct");
+        if(i === selected && !isCorrect) choice.classList.add("wrong");
+      });
+
+      const feedback = document.getElementById("feedback");
+      feedback.className = `feedback show ${isCorrect ? "good" : "bad"}`;
+      feedback.textContent = isCorrect
+        ? "Correct! Nice work."
+        : `Not quite. The correct answer is ${String.fromCharCode(65 + q.answerIndex)}) ${q.options[q.answerIndex]}`;
+
+      document.getElementById("submitBtn").textContent = isReviewMode ? "Back to Progress" : "Next Question →";
+      document.getElementById("skipBtn").classList.add("hidden");
+      updateProgressUI();
+    }
+
+    function skip(){
+      if(idx >= list.length || answered) return;
+      const q = list[idx];
+      if(!isReviewMode) updateProgress(session.username, subjectKey, idx, null, false, true);
+      answered = true;
+
+      document.querySelectorAll(".choice").forEach((choice, i)=>{
+        choice.classList.add("disabled");
+        if(i === q.answerIndex) choice.classList.add("correct");
+      });
+
+      const feedback = document.getElementById("feedback");
+      feedback.className = "feedback show bad";
+      feedback.textContent = `Skipped. The correct answer is ${String.fromCharCode(65 + q.answerIndex)}) ${q.options[q.answerIndex]}`;
+      document.getElementById("submitBtn").textContent = isReviewMode ? "Back to Progress" : "Next Question →";
+      document.getElementById("skipBtn").classList.add("hidden");
+      updateProgressUI();
+    }
+
+    function updateProgressUI(){
+      const p = progressForSubject(session.username, subjectKey);
+      const total = list.length;
+      const pct = Math.min(100, Math.round((p.attempted / total) * 100));
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("progText").textContent = `${p.attempted} / ${total} attempted • ${p.correct} correct • ${percentCorrect(session.username, subjectKey)}% accuracy`;
+    }
+
+    function doLogout(){
+      logout();
+      location.href="login.html";
+    }
+
+    render();
+  </script>
+</body>
+</html>
